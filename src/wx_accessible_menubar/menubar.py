@@ -242,6 +242,33 @@ class AccessibleMenuBar:
             return True
         return False
 
+    def webview_listener_js(self, bridge_name: Optional[str] = None) -> str:
+        """Return the in-page menu-key listener script, for apps that already own
+        the webview's script-message channel.
+
+        Pass ``webview=`` to the constructor and the library adds its *own*
+        script-message handler and injects this for you. But some setups can't
+        take a second handler — notably WebView2, which may reject
+        ``AddScriptMessageHandler`` when the app already registered one, leaving
+        the menu bar with no key listener. In that case do **not** pass
+        ``webview=``; instead inject this script with your own ``run_js`` (using
+        your existing bridge name), and forward any message whose payload has an
+        ``amb`` key to :meth:`handle_bridge_message`::
+
+            view.run_js(menubar.webview_listener_js("myBridge"))
+            # in your on_message(data):
+            #     if "amb" in data: menubar.handle_bridge_message(data)
+
+        The script is emitted on every platform; the actions it triggers no-op
+        off Windows (where the OS owns menu-bar keys), so it is safe to inject
+        anywhere. ``bridge_name`` defaults to this instance's bridge name.
+        """
+        bridge = bridge_name or self._bridge_name
+        return _WEBVIEW_JS % {
+            "mnemonics": json.dumps(self._mnemonics),
+            "bridge": json.dumps(bridge),
+        }
+
     @property
     def mnemonics(self) -> Dict[str, int]:
         """Mapping of mnemonic char -> top-level menu index, parsed from labels."""
