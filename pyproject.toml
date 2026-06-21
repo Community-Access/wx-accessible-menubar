@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wx-accessible-menubar"
-version = "0.1.0"
+version = "0.1.1"
 description = "Keyboard-accessible native menu bars for wxPython (plain Alt, mnemonics, F10, arrow navigation, focus restoration) that work even when a WebView2 holds focus, read correctly in NVDA and JAWS."
 readme = "README.md"
 requires-python = ">=3.10"
